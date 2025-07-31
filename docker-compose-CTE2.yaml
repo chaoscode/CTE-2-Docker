@@ -1,0 +1,78 @@
+services:
+  minecraft-cte2:
+    image: itzg/minecraft-server:latest
+    container_name: craft-to-exile-2
+    restart: unless-stopped
+    ports:
+      - [25565]:25565
+    environment:
+      # Basic server configuration
+      EULA: "TRUE"
+      TYPE: CURSEFORGE
+      # Craft to Exile 2 modpack configuration
+      CF_SERVER_MOD: [/data/Craft to Exile 2 SERVER-1.0.7.zip]
+      CF_API_KEY: [KEY123]
+      CF_FORCE_SYNCHRONIZE: "true"
+      # Server performance settings
+      MEMORY: 6G
+      JVM_OPTS: -XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200
+        -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC
+        -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40
+        -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5
+        -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15
+        -XX:G1MixedGCLiveThresholdPercent=90
+        -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32
+        -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1
+      # Server properties
+      SERVER_NAME: [CTE2 Server]
+      MOTD: [A craft-to-exile-2 Server.]
+      DIFFICULTY: normal
+      MODE: survival
+      MAX_PLAYERS: "[100]"
+      ALLOW_NETHER: "true"
+      ANNOUNCE_PLAYER_ACHIEVEMENTS: "true"
+      ENABLE_COMMAND_BLOCK: "false"
+      GENERATE_STRUCTURES: "true"
+      HARDCORE: "false"
+      MAX_BUILD_HEIGHT: "256"
+      MAX_WORLD_SIZE: "29999984"
+      PVP: "false"
+      SPAWN_ANIMALS: "true"
+      SPAWN_MONSTERS: "true"
+      SPAWN_NPCS: "true"
+      VIEW_DISTANCE: "10"
+      # World configuration
+      LEVEL: world
+      SEED: ""
+      LEVEL_TYPE: default
+      # Network settings
+      ENABLE_RCON: "true"
+      RCON_PASSWORD: [!Password!]
+      RCON_PORT: "[25575]"
+      # Logging
+      ENABLE_ROLLING_LOGS: "true"
+    volumes:
+      # Persistent data storage
+      - [/data]:/data
+      # Optional: Mount specific config files
+      # - ./server.properties:/data/server.properties:ro
+      # - ./whitelist.json:/data/whitelist.json
+      # - ./ops.json:/data/ops.json
+
+    networks:
+      - minecraft-network
+    # Health check
+    healthcheck:
+      test:
+        - CMD
+        - mc-health
+      start_period: 300s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+volumes:
+  minecraft_data:
+    driver: local
+networks:
+  minecraft-network:
+    driver: bridge
